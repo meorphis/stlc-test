@@ -108,7 +108,7 @@ jobs:
         # for the sticky PR comment. continue-on-error so a missing manifest
         # (build aborted before writing one) doesn't mask the real failure.
         id: manifest
-        if: always() && github.event_name == 'pull_request'
+        if: always()
         continue-on-error: true
         working-directory: ${{ env.STAINLESS_WORKSPACE }}
         env:
