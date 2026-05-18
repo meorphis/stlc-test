@@ -1,0 +1,70 @@
+name: 'Setup stlc'
+description: 'Install stlc CLI and its dependencies, and configure git auth to fetch private stlc repos. Intended for use in CI workflows that need to run stlc commands.'
+
+inputs:
+  stlc-read-token:
+    description: 'PAT with Contents:Read on stainless/stlc* repos. Used to fetch the stlc CLI family from private GitHub repos.'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: false
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: false
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+
+    - name: Install stlc
+      shell: bash
+      env:
+        STLC_READ_TOKEN: ${{ inputs.stlc-read-token }}
+      run: |
+        git_config_key="url.https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/.insteadOf"
+        cleanup_stlc_auth() { git config --global --unset-all "$git_config_key" || true; }
+        trap cleanup_stlc_auth EXIT
+        git config --global --add "$git_config_key" "https://github.com/stainless/"
+
+        npm install -g \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-cli.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-csharp.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-go.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-java.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-mcp.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-python.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-ruby.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-sql.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-terraform.git" \
+          "git+https://x-access-token:${STLC_READ_TOKEN}@github.com/stainless/stlc-typescript.git"
+
+    - name: Check stlc CLI is callable
+      shell: bash
+      run: |
+        stlc --help >/dev/null && echo "stlc is callable"
