@@ -12,6 +12,7 @@ on:
       - 'openapi.json'
       - 'stainless/stainless.yml'
       - '.github/workflows/stlc-generate.yml'
+
   push:
     branches: [main]
     paths:
