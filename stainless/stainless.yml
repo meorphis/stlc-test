@@ -6,13 +6,9 @@
 edition: 2025-10-10
 
 organization:
-  # Name of your organization or company, used to determine the name of the client
-  # and headings.
-  name: incident-io-13
-  # Link to your API documentation.
-  docs: https://api-docsss.incident.io/
-  # Contact email for bug reports, questions, and support requests.
-  contact: 'meorphis7@gmail.com'
+  name: meorphis-test-5
+  docs: https://docs.meorphis-test-1.com
+  contact: support@acme.com
 
 # `targets` define the output targets and their customization options, such as
 # whether to emit the Node SDK and what its package name should be.
@@ -28,420 +24,61 @@ targets:
     publish:
       npm: false
 
-# `environments` are a map of the name of the environment (e.g. "sandbox",
-# "production") to the corresponding url to use.
-environments:
-  production: https://api.incident.io
-
-# `resources` define the structure and organization for your API, such as how
-# methods and models are grouped together and accessed. See the [configuration
-# guide] for more information.
-#
-# [configuration guide]: https://www.stainless.com/docs/guides/configure#resources
 resources:
-  actions:
-    # Configure the methods defined in this resource. Each key in the object is the
-    # name of the method and the value is either an endpoint (for example, `get /foo`)
-    # or an object with more detail.
-    #
-    # [reference]: https://www.stainless.com/docs/reference/config#method
-    # Configure the models--named types--defined in the resource. Each key in the
-    # object is the name of the model and the value is either the name of a schema in
-    # `#/components/schemas` or an object with more detail.
-    #
-    # [reference]: https://www.stainless.com/docs/reference/config#model
-    models:
-      action_v1: '#/components/schemas/ActionV1'
-      action_v2: '#/components/schemas/ActionV2'
-      actor_v2: '#/components/schemas/ActorV2'
-      alert_actor_v2: '#/components/schemas/AlertActorV2'
-      user_v1: '#/components/schemas/UserV1'
-      user_v2: '#/components/schemas/UserV2'
-      workflow_actor_v2: '#/components/schemas/WorkflowActorV2'
+  accounts:
     methods:
-      list: get /v1/actions
-      retrieve: get /v1/actions/{id}
-      list_v2: get /v2/actions
-      retrieve_v2: get /v2/actions/{id}
-
-  custom_field_options:
-    models:
-      custom_field_option_v1: '#/components/schemas/CustomFieldOptionV1'
-      pagination_meta: '#/components/schemas/PaginationMetaResultV1'
-    methods:
-      list: get /v1/custom_field_options
-      create: post /v1/custom_field_options
-      delete: delete /v1/custom_field_options/{id}
-      retrieve: get /v1/custom_field_options/{id}
-      update: put /v1/custom_field_options/{id}
-
-  custom_fields:
-    models:
-      custom_field_filter_by_options_v2: '#/components/schemas/CustomFieldFilterByOptionsV2'
-      custom_field_v1: '#/components/schemas/CustomFieldV1'
-      custom_field_v2: '#/components/schemas/CustomFieldV2'
-    methods:
-      list_v1: get /v1/custom_fields
-      create_v1: post /v1/custom_fields
-      delete_v1: delete /v1/custom_fields/{id}
-      retrieve_v1: get /v1/custom_fields/{id}
-      update_v1: put /v1/custom_fields/{id}
-      list_v2: get /v2/custom_fields
-      create_v2: post /v2/custom_fields
-      delete_v2: delete /v2/custom_fields/{id}
-      retrieve_v2: get /v2/custom_fields/{id}
-      update_v2: put /v2/custom_fields/{id}
-
-  identity:
-    methods:
-      retrieve: get /v1/identity
-
-  incident_attachments:
-    models:
-      incident_attachment: '#/components/schemas/IncidentAttachmentV1'
-    methods:
-      list: get /v1/incident_attachments
-      create: post /v1/incident_attachments
-      delete: delete /v1/incident_attachments/{id}
-
-  incident_memberships:
-    methods:
-      create: post /v1/incident_memberships
-    # Subresources define resources that are nested within another for more powerful
-    # logical groupings, e.g. `cards.payments`.
+      retrieve: get /accounts/{account_token}
+      update: patch /accounts/{account_token}
     subresources:
-      actions:
+      credit_configuration:
         methods:
-          revoke: post /v1/incident_memberships/actions/revoke
-
-  incident_relationships:
-    methods:
-      list: get /v1/incident_relationships
-
-  incident_roles:
+          retrieve: get /accounts/{account_token}/credit_configuration
+          update: patch /accounts/{account_token}/credit_configuration
+        models:
+          businessAccount: BusinessAccount
     models:
-      incident_role_v1: '#/components/schemas/IncidentRoleV1'
-      incident_role_v2: '#/components/schemas/IncidentRoleV2'
+      accountConfiguration: AccountConfiguration
+  cards:
     methods:
-      list: get /v1/incident_roles
-      create: post /v1/incident_roles
-      delete: delete /v1/incident_roles/{id}
-      retrieve: get /v1/incident_roles/{id}
-      update: put /v1/incident_roles/{id}
-      list_v2: get /v2/incident_roles
-      create_v2: post /v2/incident_roles
-      delete_v2: delete /v2/incident_roles/{id}
-      retrieve_v2: get /v2/incident_roles/{id}
-      update_v2: put /v2/incident_roles/{id}
-
-  incident_statuses:
-    models:
-      incident_status_v1: '#/components/schemas/IncidentStatusV1'
-    methods:
-      list: get /v1/incident_statuses
-      create: post /v1/incident_statuses
-      delete: delete /v1/incident_statuses/{id}
-      retrieve: get /v1/incident_statuses/{id}
-      update: put /v1/incident_statuses/{id}
-
-  incident_types:
-    models:
-      incident_type: '#/components/schemas/IncidentTypeV1'
-    methods:
-      list: get /v1/incident_types
-      retrieve: get /v1/incident_types/{id}
-
-  incidents:
-    models:
-      custom_field_entry_payload: '#/components/schemas/CustomFieldEntryPayloadV2'
-      custom_field_option_v2: '#/components/schemas/CustomFieldOptionV2'
-      incident_role_assignment_payload: '#/components/schemas/IncidentRoleAssignmentPayloadV2'
-      incident_status_v2: '#/components/schemas/IncidentStatusV2'
-      incident_timestamp_value_payload: '#/components/schemas/IncidentTimestampValuePayloadV2'
-      incident_v1: '#/components/schemas/IncidentV1'
-      incident_v2: '#/components/schemas/IncidentV2'
-      pagination_meta_result_with_total: '#/components/schemas/PaginationMetaResultWithTotalV2'
-      severity: '#/components/schemas/SeverityV2'
-    methods:
-      list: get /v1/incidents
-      create: post /v1/incidents
-      retrieve: get /v1/incidents/{id}
-      list_v2: get /v2/incidents
-      create_v2: post /v2/incidents
-      retrieve_v2: get /v2/incidents/{id}
+      create: post /cards
+      retrieve: get /cards/{card_token}
+      update: patch /cards/{card_token}
+      provision: post /cards/{card_token}/provision
     subresources:
-      actions:
+      financial_transactions:
         methods:
-          edit: post /v2/incidents/{id}/actions/edit
-
-  ip_allowlists:
+          retrieve: >-
+            get
+            /cards/{card_token}/financial_transactions/{financial_transaction_token}
+        models:
+          financialTransaction: FinancialTransaction
     models:
-      ip_allowlist_item: '#/components/schemas/IPAllowlistItemV1'
-      ip_allowlist: '#/components/schemas/IPAllowlistV1'
+      card: Card
+  status:
     methods:
-      retrieve: get /v1/ip_allowlists
-      update: put /v1/ip_allowlists
-
-  openapi_json:
-    methods:
-      retrieve: get /v1/openapi.json
-
-  openapi_v3_json:
-    methods:
-      retrieve: get /v1/openapiV3.json
-
-  severities:
-    models:
-      severity_v1: '#/components/schemas/SeverityV1'
-    methods:
-      list: get /v1/severities
-      create: post /v1/severities
-      delete: delete /v1/severities/{id}
-      retrieve: get /v1/severities/{id}
-      update: put /v1/severities/{id}
-
-  status_pages:
-    subresources:
-      incidents:
-        methods:
-          list_response_incidents: get /v1/status-pages/{id}/incidents/{incident_id}/response-incidents
-
-  alert_attributes:
-    models:
-      alert_attribute_v2: '#/components/schemas/AlertAttributeV2'
-    methods:
-      list: get /v2/alert_attributes
-      create: post /v2/alert_attributes
-      delete: delete /v2/alert_attributes/{id}
-      retrieve: get /v2/alert_attributes/{id}
-      update: put /v2/alert_attributes/{id}
-
-  alert_events:
-    methods:
-      create_http: post /v2/alert_events/http/{alert_source_config_id}
-
-  alert_routes:
-    models:
-      alert_source_payload: '#/components/schemas/AlertRouteAlertSourcePayloadV2'
-      auto_generated_template_binding_payload: '#/components/schemas/AlertRouteAutoGeneratedTemplateBindingPayloadV2'
-      auto_generated_template_binding: '#/components/schemas/AlertRouteAutoGeneratedTemplateBindingV2'
-      channel_config_payload: '#/components/schemas/AlertRouteChannelConfigPayloadV2'
-      channel_target_payload: '#/components/schemas/AlertRouteChannelTargetPayloadV2'
-      channel_target: '#/components/schemas/AlertRouteChannelTargetV2'
-      escalation_config_payload: '#/components/schemas/AlertRouteEscalationConfigPayloadV2'
-      incident_config_payload: '#/components/schemas/AlertRouteIncidentConfigPayloadV2'
-      incident_template_payload: '#/components/schemas/AlertRouteIncidentTemplatePayloadV2'
-      template_binding_payload: '#/components/schemas/AlertRouteTemplateBindingPayloadV2'
-      template_binding: '#/components/schemas/AlertRouteTemplateBindingV2'
-      alert_route: '#/components/schemas/AlertRouteV2'
-      condition_group_payload: '#/components/schemas/ConditionGroupPayloadV2'
-      condition_group: '#/components/schemas/ConditionGroupV2'
-      expression_payload: '#/components/schemas/ExpressionPayloadV2'
-      expression: '#/components/schemas/ExpressionV2'
-      grouping_key: '#/components/schemas/GroupingKeyV2'
-      pagination_meta_result: '#/components/schemas/PaginationMetaResultV2'
-      returns_meta: '#/components/schemas/ReturnsMetaV2'
-    methods:
-      list: get /v2/alert_routes
-      create: post /v2/alert_routes
-      delete: delete /v2/alert_routes/{id}
-      retrieve: get /v2/alert_routes/{id}
-      update: put /v2/alert_routes/{id}
-
-  alert_sources:
-    models:
-      http_custom_options: '#/components/schemas/AlertSourceHTTPCustomOptionsV2'
-      jira_options: '#/components/schemas/AlertSourceJiraOptionsV2'
-      alert_source: '#/components/schemas/AlertSourceV2'
-      template_payload: '#/components/schemas/AlertTemplatePayloadV2'
-      param_binding_value_payload: '#/components/schemas/EngineParamBindingValuePayloadV2'
-      param_binding_value: '#/components/schemas/EngineParamBindingValueV2'
-    methods:
-      list: get /v2/alert_sources
-      create: post /v2/alert_sources
-      delete: delete /v2/alert_sources/{id}
-      retrieve: get /v2/alert_sources/{id}
-      update: put /v2/alert_sources/{id}
-
-  alerts:
-    models:
-      alert_attribute_value_v2: '#/components/schemas/AlertAttributeValueV2'
-      alert_v2: '#/components/schemas/AlertV2'
-    methods:
-      list: get /v2/alerts
-      retrieve: get /v2/alerts/{id}
-
-  catalog_entries:
-    models:
-      catalog_entry_v2: '#/components/schemas/CatalogEntryV2'
-      catalog_entry_v3: '#/components/schemas/CatalogEntryV3'
-      catalog_type_v2: '#/components/schemas/CatalogTypeV2'
-      catalog_type_v3: '#/components/schemas/CatalogTypeV3'
-    methods:
-      list_entries_v2: get /v2/catalog_entries
-      create_entry_v2: post /v2/catalog_entries
-      destroy_entry_v2: delete /v2/catalog_entries/{id}
-      show_entry_v2: get /v2/catalog_entries/{id}
-      update_entry_v2: put /v2/catalog_entries/{id}
-      list_entries_v3: get /v3/catalog_entries
-      create_entry_v3: post /v3/catalog_entries
-      destroy_entry_v3: delete /v3/catalog_entries/{id}
-      show_entry_v3: get /v3/catalog_entries/{id}
-      update_entry_v3: put /v3/catalog_entries/{id}
-
-  catalog_resources:
-    methods:
-      list_v2: get /v2/catalog_resources
-      list_v3: get /v3/catalog_resources
-
-  catalog_types:
-    methods:
-      list: get /v3/catalog_types
-      create: post /v3/catalog_types
-      destroy: delete /v3/catalog_types/{id}
-      retrieve: get /v3/catalog_types/{id}
-      update: put /v3/catalog_types/{id}
-    subresources:
-      actions:
-        methods:
-          update_schema: post /v3/catalog_types/{id}/actions/update_schema
-
-  escalation_paths:
-    models:
-      escalation_path_node_if_else_payload: '#/components/schemas/EscalationPathNodeIfElsePayloadV2'
-      escalation_path_node_if_else: '#/components/schemas/EscalationPathNodeIfElseV2'
-      escalation_path_node_payload: '#/components/schemas/EscalationPathNodePayloadV2'
-      escalation_path_node: '#/components/schemas/EscalationPathNodeV2'
-      escalation_path: '#/components/schemas/EscalationPathV2'
-      weekday_interval_config: '#/components/schemas/WeekdayIntervalConfigV2'
-    methods:
-      create: post /v2/escalation_paths
-      delete: delete /v2/escalation_paths/{id}
-      retrieve: get /v2/escalation_paths/{id}
-      update: put /v2/escalation_paths/{id}
-
-  escalations:
-    models:
-      escalation_v2: '#/components/schemas/EscalationV2'
-    methods:
-      list: get /v2/escalations
-      create: post /v2/escalations
-      retrieve: get /v2/escalations/{id}
-
-  follow_ups:
-    models:
-      external_issue_reference: '#/components/schemas/ExternalIssueReferenceV2'
-      follow_up: '#/components/schemas/FollowUpV2'
-    methods:
-      list: get /v2/follow_ups
-      retrieve: get /v2/follow_ups/{id}
-
-  incident_alerts:
-    models:
-      alert_slim: '#/components/schemas/AlertSlimV2'
-      incident_slim: '#/components/schemas/IncidentSlimV2'
-    methods:
-      list: get /v2/incident_alerts
-
-  incident_timestamps:
-    models:
-      incident_timestamp: '#/components/schemas/IncidentTimestampV2'
-    methods:
-      list: get /v2/incident_timestamps
-      retrieve: get /v2/incident_timestamps/{id}
-
-  incident_updates:
-    methods:
-      list: get /v2/incident_updates
-
-  schedule_entries:
-    models:
-      schedule_entry: '#/components/schemas/ScheduleEntryV2'
-    methods:
-      list: get /v2/schedule_entries
-
-  schedule_overrides:
-    models:
-      user_reference_payload_v2: '#/components/schemas/UserReferencePayloadV2'
-    methods:
-      create: post /v2/schedule_overrides
-
-  schedules:
-    models:
-      schedule_holidays_public_config_payload: '#/components/schemas/ScheduleHolidaysPublicConfigPayloadV2'
-      schedule_rotation_handover: '#/components/schemas/ScheduleRotationHandoverV2'
-      schedule_rotation_working_interval: '#/components/schemas/ScheduleRotationWorkingIntervalV2'
-      schedule: '#/components/schemas/ScheduleV2'
-    methods:
-      list: get /v2/schedules
-      create: post /v2/schedules
-      delete: delete /v2/schedules/{id}
-      retrieve: get /v2/schedules/{id}
-      update: put /v2/schedules/{id}
-
-  users:
-    models:
-      rbac_role: '#/components/schemas/RBACRoleV2'
-      user_with_roles: '#/components/schemas/UserWithRolesV2'
-    methods:
-      list: get /v2/users
-      retrieve: get /v2/users/{id}
-
-  workflows:
-    models:
-      engine_param_binding_payload: '#/components/schemas/EngineParamBindingPayloadV2'
-      engine_param_binding: '#/components/schemas/EngineParamBindingV2'
-      engine_reference: '#/components/schemas/EngineReferenceV2'
-      management_meta: '#/components/schemas/ManagementMetaV2'
-      step_config_payload: '#/components/schemas/StepConfigPayloadV2'
-      trigger_slim: '#/components/schemas/TriggerSlimV2'
-      workflow_delay: '#/components/schemas/WorkflowDelayV2'
-      workflow: '#/components/schemas/WorkflowV2'
-    methods:
-      list: get /v2/workflows
-      create: post /v2/workflows
-      destroy: delete /v2/workflows/{id}
-      retrieve: get /v2/workflows/{id}
-      update: put /v2/workflows/{id}
-
+      retrieve: get /status
 settings:
-  # All generated integration tests that hit the prism mock http server are marked
-  # as skipped. Removing this setting or setting it to false enables tests, but
-  # doing so may result in test failures due to bugs in the test server.
-  #
-  # [prism mock http server]: https://stoplight.io/open-source/prism
-  disable_mock_tests: true
   license: Apache-2.0
-
-# `client_settings` define settings for the API client, such as extra constructor
-# arguments (used for authentication), retry behavior, idempotency, etc.
 client_settings:
   opts:
     api_key:
       type: string
-      read_env: INCIDENT_IO_2_API_KEY
-      nullable: true
       auth:
-        security_scheme: bearerAuth
-
-security_schemes:
-  bearerAuth:
-    type: http
-    scheme: bearer
-
-security:
-  - bearerAuth: []
-
-# `readme` is used to configure the code snippets that will be rendered in the
-# README.md of various SDKs. In particular, you can change the `headline`
-# snippet's endpoint and the arguments to call it with.
+        security_scheme: ApiKeyAuth
+      read_env: MEORPHIS_TEST_1_API_KEY
+environments:
+  production: https://api.acme.com/v1
+  environment_1: https://sandbox.acme.com/v1
+query_settings:
+  nested_format: brackets
+  array_format: comma
 readme:
   example_requests:
     default:
       type: request
-      endpoint: get /v1/actions
-      params: {}
+      endpoint: get /status
+      params: &ref_0 {}
     headline:
       type: request
-      endpoint: get /v1/actions
-      params: {}
+      endpoint: get /status
+      params: *ref_0
