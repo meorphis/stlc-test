@@ -27,10 +27,6 @@ targets:
     production_repo: null
     publish:
       npm: false
-    options:
-      mcp_server:
-        package_name: incident-io-2-mcp
-        enable_all_resources: true
 
 # `environments` are a map of the name of the environment (e.g. "sandbox",
 # "production") to the corresponding url to use.
