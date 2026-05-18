@@ -410,7 +410,7 @@ paths:
       tags:
         - Card
       summary: Get card
-      description: Get card configuration such as spend limit and state?
+      description: Get card configuration such as spend limit and state?!
       operationId: getCardByToken
       parameters:
         - $ref: '#/components/parameters/cardToken'
