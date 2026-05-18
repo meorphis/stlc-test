@@ -10,7 +10,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'openapi.json'
-      - 'stainless/stainless.yml'
+      - 'stainless/*'
       - '.github/workflows/stlc-generate.yml'
 
   push:
