@@ -42,7 +42,7 @@ paths:
       tags:
         - Account
       summary: Get account
-      description: Get account configuration such as spend limits.
+      description: Get account configuration such as spend limits!
       operationId: getAccountByToken
       parameters:
         - $ref: '#/components/parameters/accountToken'
