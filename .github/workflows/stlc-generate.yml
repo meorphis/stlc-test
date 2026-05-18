@@ -9,14 +9,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'openapi.yml'
+      - 'openapi.json'
       - 'stainless/*'
       - '.github/workflows/stlc-generate.yml'
 
   push:
     branches: [main]
     paths:
-      - 'openapi.yml'
+      - 'openapi.json'
       - 'stainless/stainless.yml'
       - '.github/workflows/stlc-generate.yml'
 
