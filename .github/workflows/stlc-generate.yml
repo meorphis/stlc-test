@@ -9,20 +9,21 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'openapi.yml'
-      - 'stainless/*'
+      - 'stainless/**'
       - '.github/workflows/stlc-generate.yml'
-
+      - '.github/actions/setup-stlc/**'
   push:
     branches: [main]
     paths:
-      - 'openapi.yml'
-      - 'stainless/stainless.yml'
+      - 'stainless/**'
       - '.github/workflows/stlc-generate.yml'
+      - '.github/actions/setup-stlc/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Cancel superseded PR runs, but let main-branch pushes finish so a fast
+  # second merge can't abort an in-flight push to staging repos.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -114,7 +115,15 @@ jobs:
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          stlc show --renderer=markdown --workflow-run-url "$RUN_URL" > /tmp/build-manifest.md
+          if ! stlc show --renderer=markdown --workflow-run-url "$RUN_URL" > /tmp/build-manifest.md; then
+            {
+              echo "## stlc build manifest"
+              echo ""
+              echo "Manifest render failed — no sticky comment will be posted."
+              echo "See the \"Generate SDKs and push\" step above for the underlying error."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
           cat /tmp/build-manifest.md
           cat /tmp/build-manifest.md >> "$GITHUB_STEP_SUMMARY"
 
