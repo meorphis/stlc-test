@@ -1,0 +1,126 @@
+name: Generate SDKs with stlc
+
+# Generates SDKs for all configured targets and syncs to SDK staging
+# repos. On pull_request: pushes to a preview branch on each staging
+# repo and sticky-comments diff links onto the PR. On push to main:
+# pushes directly to main on each staging repo (the per-language
+# Promote workflow then opens a release PR to production).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'openapi.json'
+      - 'stainless/stainless.yml'
+      - '.github/workflows/stlc-generate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'openapi.json'
+      - 'stainless/stainless.yml'
+      - '.github/workflows/stlc-generate.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  # Path to the stainless workspace (contains workspace.json, package.json, builds/).
+  STAINLESS_WORKSPACE: stainless
+  # `all` builds every configured target. Or a comma-separated subset, e.g.:
+  #   ruby,typescript,python,go,java,php,cli,csharp,kotlin,terraform
+  DEFAULT_TARGETS: all
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup stlc
+        uses: ./.github/actions/setup-stlc
+        with:
+          stlc-read-token: ${{ secrets.STLC_READ_TOKEN }}
+
+      - name: Configure auth for stlc to push to SDK repos
+        env:
+          GH_TOKEN: ${{ secrets.SDK_WRITE_TOKEN }}
+        run: |
+          git config --global user.name "stlc-bot"
+          git config --global user.email "stlc-bot@users.noreply.github.com"
+          gh auth setup-git
+
+      - name: Resolve commit message
+        # Use the merged PR's title as the SDK commit subject; works across
+        # squash/merge/rebase strategies. Falls back to HEAD for direct pushes.
+        id: msg
+        if: github.event_name == 'push'
+        env:
+          SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FALLBACK: ${{ github.event.head_commit.message }}
+        run: |
+          pr_title=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].title // empty')
+
+          if [ -n "$pr_title" ]; then
+            commit_msg="$pr_title"
+          else
+            commit_msg="$FALLBACK"
+          fi
+
+          {
+            echo "commit_msg<<MSG_EOF"
+            echo "$commit_msg"
+            echo "MSG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Generate SDKs and push
+        env:
+          # PR head ref on pull_request (preview branch), "main" on push.
+          BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          COMMIT_MSG: ${{ steps.msg.outputs.commit_msg }}
+          GH_TOKEN: ${{ secrets.SDK_WRITE_TOKEN }}
+        working-directory: ${{ env.STAINLESS_WORKSPACE }}
+        run: |
+          echo "Building targets: $DEFAULT_TARGETS to branch: $BRANCH"
+          commit_args=()
+          if [ -n "$COMMIT_MSG" ]; then
+            commit_args=(--commit "$COMMIT_MSG")
+          fi
+          stlc build \
+            --branch "$BRANCH" \
+            --output /tmp/sdk-output \
+            --push \
+            --targets "$DEFAULT_TARGETS" \
+            "${commit_args[@]}"
+
+      - name: Render build manifest
+        # Renders the latest manifest to the Actions Summary and to a file
+        # for the sticky PR comment. continue-on-error so a missing manifest
+        # (build aborted before writing one) doesn't mask the real failure.
+        id: manifest
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        working-directory: ${{ env.STAINLESS_WORKSPACE }}
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          stlc show --renderer=markdown --workflow-run-url "$RUN_URL" > /tmp/build-manifest.md
+          cat /tmp/build-manifest.md
+          cat /tmp/build-manifest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment build manifest on PR
+        # `header` identifies the comment so subsequent runs update in place.
+        if: always() && steps.manifest.outcome == 'success'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: stlc-build-manifest
+          path: /tmp/build-manifest.md

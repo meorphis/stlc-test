@@ -23,7 +23,8 @@ targets:
     # [docs]: https://www.stainless.com/docs/reference/editions
     edition: typescript.2025-10-10
     package_name: incident-io-2
-    production_repo: meorphis/test-repo-9
+    staging_repo: meorphis/stlc-typescript-test
+    production_repo: null
     publish:
       npm: false
     options:
